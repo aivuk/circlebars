@@ -1,0 +1,25 @@
+body {
+
+    margin-left: 100px;
+}
+
+#info {
+    height: 50px;
+}
+
+#circlebars {
+    width: 600px;
+    height: 480px;
+    position: relative;
+    border-bottom-style: solid;
+    border-bottom-color: #eee;
+    border-bottom-width: 4px;
+    border-left-style: solid;
+    border-left-color: #eee;
+    border-left-width: 4px;
+}
+
+.column {
+    bottom: 0;
+    position: absolute;
+}
