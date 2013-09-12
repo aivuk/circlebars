@@ -6,88 +6,14 @@
 <link rel="stylesheet" href="css/style.css" type="text/css" />
 <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 <script src="./js/jquery.csv-0.71.min.js"></script>
-<script src="./js/jquery.color.js"></script>
-<script type="text/javascript">
-
-    var info;
-    var grouped_info = {};
-
-    var column_data = [10, 3, 4, 6, 7, 9, 10, 13, 10, 2, 1, 4, 5];
-
-    var circle_size = 20;
-    var circle_border = 5;
-    var left_margin = 15;
-    var bottom_margin = 15;
-
-    var graph_height = (column_data.length*(2*circle_border + circle_size));
-    var graph_width = (Math.max.apply(null, column_data)*(2*circle_border + circle_size));
-
-    function cellOver(i) {
-        return function() {
-                    $(this).animate({backgroundColor: 'red'}, 'fast');
-                    $('#info').html(i);
-        }
-    }
-
-
-    function createObject(data) {
-        info = $.csv.toObjects(data);
-
-        $('#circlebars').css({'width': graph_width , 'height': graph_height});
-
-        info.forEach(function (v, i) {
-            if (grouped_info[v['objetivo']]) {
-                grouped_info[v['objetivo']].push(v);
-            } else {
-                grouped_info[v['objetivo']] = [v];
-            }
-        });
-
-        $.each(grouped_info, function (i, v) {
-            var new_column = $('<div/>').addClass('column').attr('id', 'col' + String(i));
-            var col_bottom = 20;
-            new_column.css({'left': String(i*(circle_size + circle_border) + left_margin) + 'px', 'bottom': String(bottom_margin) + 'px'});
-            for (var j = 0; j < v.length; ++j) {
-                var new_cell = $('<div/>').addClass('circle').attr('id', 'cell-' + i + '-' + j).css({'border-radius': '50%',
-                                                                                  'width': String(circle_size) + 'px',
-                                                                                  'height': String(circle_size) + 'px',
-                                                                                  'bottom': String(j*(circle_size + circle_border)) + 'px',
-                                                                                  'position': 'absolute',
-                                                                                  'background-color': 'blue'});
-
-               new_cell.on('mouseover', cellOver('')).on('mouseout', function () {
-                    $(this).animate({backgroundColor: 'blue'}, 'fast');
-                    $('#info').text();
-                });
-
-                new_column.append(new_cell);
-
-            }
-            $('#circlebars').append(new_column);
-        });
-
-    }
-
-    $(function () {
-
-        $.ajax({
-                    type: "GET",
-                    url: "/data/metas.csv",
-                    success: createObject
-                });
-
-    });
-
-</script>
 </head>
 <body>
     <div id="content">
         <div id="info"></div>
         <div id="circlebars">
-            <div id="col1" class="column"></div>
-            <div id="col2" class="column"></div>
-            <div id="col3" class="column"></div>
         </div>
     </div>
+    <script src="http://d3js.org/d3.v2.js"></script>
+    <script src="./js/circlebars.js"></script>
 </body>
 </html>
