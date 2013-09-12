@@ -21,20 +21,24 @@ d3.csv "/data/metas.csv", (d) ->
                     .attr("height", "100%")
 
     for o, ms of metas
+        console.log o
         do (ms) ->
             ms.forEach (m, i) ->
                 chart.append("svg:circle")
-                            .attr("class", "circ")
-                            .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)) - 2*circleRadius)
-                            .attr("cx", parseInt(o) * (2*circleRadius + circleDistance) + 2*circleRadius)
-                            .attr("r", circleRadius)
-                            .attr("fill", "blue")
-                            .on "mouseover", () ->
-                                    d3.select(this)
-                                        .transition()
-                                        .attr("fill", "red")
-                            .on "mouseout", () ->
-                                    d3.select(this)
-                                        .transition()
-                                        .attr("fill", "blue")
+                        .attr("class", "circ")
+                        .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)) - 2*circleRadius)
+                        .attr("cx", (parseInt(o) - 1) * (2*circleRadius + circleDistance) + 2*circleRadius)
+                        .attr("r", circleRadius)
+                        .attr("fill", (state) -> if m['estado'] == "concluída" then "green" else "blue")
+                        .on "mouseover", () ->
+                                d3.select(this)
+                                    .transition()
+                                    .attr("fill", "red")
+                                d3.select("#metaInfo").text m['texto']
+                        .on "mouseout", () ->
+                                d3.select(this)
+                                    .transition()
+                                    .attr("fill", (state) -> if m['estado'] == "concluída" then "green" else "blue")
+                                d3.select("#metaInfo").text ''
+
 

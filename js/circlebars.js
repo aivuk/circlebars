@@ -35,12 +35,27 @@
     _results = [];
     for (o in metas) {
       ms = metas[o];
+      console.log(o);
       _results.push((function(ms) {
         return ms.forEach(function(m, i) {
-          return chart.append("svg:circle").attr("class", "circ").attr("cy", chartHeight - (i * (2 * circleRadius + circleDistance)) - 2 * circleRadius).attr("cx", parseInt(o) * (2 * circleRadius + circleDistance) + 2 * circleRadius).attr("r", circleRadius).attr("fill", "blue").on("mouseover", function() {
-            return d3.select(this).transition().attr("fill", "red");
+          return chart.append("svg:circle").attr("class", "circ").attr("cy", chartHeight - (i * (2 * circleRadius + circleDistance)) - 2 * circleRadius).attr("cx", (parseInt(o) - 1) * (2 * circleRadius + circleDistance) + 2 * circleRadius).attr("r", circleRadius).attr("fill", function(state) {
+            if (m['estado'] === "concluída") {
+              return "green";
+            } else {
+              return "blue";
+            }
+          }).on("mouseover", function() {
+            d3.select(this).transition().attr("fill", "red");
+            return d3.select("#metaInfo").text(m['texto']);
           }).on("mouseout", function() {
-            return d3.select(this).transition().attr("fill", "blue");
+            d3.select(this).transition().attr("fill", function(state) {
+              if (m['estado'] === "concluída") {
+                return "green";
+              } else {
+                return "blue";
+              }
+            });
+            return d3.select("#metaInfo").text('');
           });
         });
       })(ms));
