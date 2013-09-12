@@ -9,7 +9,9 @@
 <script src="./js/jquery.color.js"></script>
 <script type="text/javascript">
 
-    var cell_info = [];
+    var info;
+    var grouped_info = {};
+
     var column_data = [10, 3, 4, 6, 7, 9, 10, 13, 10, 2, 1, 4, 5];
 
     var circle_size = 20;
@@ -20,24 +22,32 @@
     var graph_height = (column_data.length*(2*circle_border + circle_size));
     var graph_width = (Math.max.apply(null, column_data)*(2*circle_border + circle_size));
 
-    console.log(graph_height + ' ' + graph_width);
-
     function cellOver(i) {
         return function() {
                     $(this).animate({backgroundColor: 'red'}, 'fast');
                     $('#info').html(i);
         }
     }
-    $(function () {
+
+
+    function createObject(data) {
+        info = $.csv.toObjects(data);
 
         $('#circlebars').css({'width': graph_width , 'height': graph_height});
 
-        $.each(column_data, function (i, v) {
+        info.forEach(function (v, i) {
+            if (grouped_info[v['objetivo']]) {
+                grouped_info[v['objetivo']].push(v);
+            } else {
+                grouped_info[v['objetivo']] = [v];
+            }
+        });
+
+        $.each(grouped_info, function (i, v) {
             var new_column = $('<div/>').addClass('column').attr('id', 'col' + String(i));
             var col_bottom = 20;
             new_column.css({'left': String(i*(circle_size + circle_border) + left_margin) + 'px', 'bottom': String(bottom_margin) + 'px'});
-            cell_info[i] = [];
-            for (var j = 0; j < v; ++j) {
+            for (var j = 0; j < v.length; ++j) {
                 var new_cell = $('<div/>').addClass('circle').attr('id', 'cell-' + i + '-' + j).css({'border-radius': '50%',
                                                                                   'width': String(circle_size) + 'px',
                                                                                   'height': String(circle_size) + 'px',
@@ -45,10 +55,7 @@
                                                                                   'position': 'absolute',
                                                                                   'background-color': 'blue'});
 
-                cell_info[i][j] = '<b> Coluna: </b>' + i + '<br/><b>Bola: </b>' + j;
-                c = cell_info[i][j];
-
-               new_cell.on('mouseover', cellOver(c)).on('mouseout', function () {
+               new_cell.on('mouseover', cellOver('')).on('mouseout', function () {
                     $(this).animate({backgroundColor: 'blue'}, 'fast');
                     $('#info').text();
                 });
@@ -58,6 +65,16 @@
             }
             $('#circlebars').append(new_column);
         });
+
+    }
+
+    $(function () {
+
+        $.ajax({
+                    type: "GET",
+                    url: "/data/metas.csv",
+                    success: createObject
+                });
 
     });
 
