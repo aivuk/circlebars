@@ -19,3 +19,9 @@ body {
     bottom: 0;
     position: absolute;
 }
+
+.filtered {
+    stroke: #222;
+    stroke-width: 5;
+}
+

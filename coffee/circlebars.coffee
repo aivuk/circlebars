@@ -4,6 +4,7 @@ circleRadius = 20
 circleDistance = 10
 metas = {}
 eixos = {}
+filterColumns = ["educacao", "saude"]
 
 eixosColor = ["#34b746", "#4b2bbf", "#ff7f00"]
 
@@ -37,28 +38,25 @@ d3.csv "/data/metas.csv", (d) ->
                     .attr("width", "100%")
                     .attr("height", "100%")
 
-    # Draw the rectangles
-    #i = 0
-    #lastWidth = 0
-    #while i < eixosSize.length
-    #    chart.append("svg:rect")
-    #        .attr("x", lastWidth)
-    #        .attr("y", 0)
-    #        .attr("width", eixosSize[i]*(2*circleRadius + circleDistance) + circleDistance)
-    #        .attr("height", chartHeight)
-    #        .attr("fill", eixosColor[i])
-    #    lastWidth += eixosSize[i]*(2*circleRadius + circleDistance) + circleDistance
-    #    i += 1
+    groups = {}
+    for f in filterColumns
+        groups[f] = []
 
     for o, ms of metas
         do (ms) ->
             ms.forEach (m, i) ->
+                for f in filterColumns
+                    if m[f] == "TRUE"
+                        groups[f].push m['id']
+                console.log groups
                 chart.append("svg:circle")
                         .attr("class", "circ")
                         .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)) - 2*circleRadius)
                         .attr("cx", (parseInt(o) - 1) * (2*circleRadius + circleDistance) + circleDistance + circleRadius)
                         .attr("r", circleRadius)
                         .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
+                        .attr("class", "circ")
+                        .attr("id", "circ-#{ m['id']}")
                         .on "mouseover", () ->
                                 d3.select(this)
                                     .transition()
@@ -72,5 +70,20 @@ d3.csv "/data/metas.csv", (d) ->
                                     .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
                                     .attr("stroke-width", "0")
                                 d3.select("#metaInfo").text ''
+
+    filterFunc = (g) ->
+        () ->
+            d3.selectAll(".filtered")
+                .classed("filtered", false)
+            for c in groups[g]
+                d3.select("#circ-#{c}")
+                    .classed("filtered", () -> not d3.select(this).classed("filtered"))
+
+    filtersDiv = d3.select("#filters")
+    for f in filterColumns
+        filtersDiv.append("div")
+            .text(f)
+            .on "click", filterFunc(f)
+
 
 
