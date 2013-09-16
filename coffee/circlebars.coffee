@@ -6,6 +6,10 @@ metas = {}
 eixos = {}
 filterColumns = ["educacao", "saude"]
 
+fcLabels = {}
+fcLabels["educacao"] = "Educação"
+fcLabels["saude"] = "Saúde"
+
 eixosColor = ["#34b746", "#4b2bbf", "#ff7f00"]
 
 d3.csv "/data/metas.csv", (d) ->
@@ -29,7 +33,7 @@ d3.csv "/data/metas.csv", (d) ->
             eixosSize.push eixos[i].length
 
     maxHeight = Math.max (ms.length for o, ms of metas)...
-    chartHeight = maxHeight*(2*circleRadius + 2*circleDistance)
+    chartHeight = maxHeight*(2*circleRadius + 1.5*circleDistance)
 
     # Create the SVG
     chart = d3.select("#circlebars")
@@ -57,6 +61,7 @@ d3.csv "/data/metas.csv", (d) ->
                         .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
                         .attr("class", "circ")
                         .attr("id", "circ-#{ m['id']}")
+                        .attr("title", m['texto'])
                         .on "mouseover", () ->
                                 d3.select(this)
                                     .transition()
@@ -71,19 +76,33 @@ d3.csv "/data/metas.csv", (d) ->
                                     .attr("stroke-width", "0")
                                 d3.select("#metaInfo").text ''
 
-    filterFunc = (g) ->
+
+    $(".circ").tipsy({gravity: 'w', opacity: 0.9})
+    filterFunc = (ftag_id, g) ->
         () ->
+            enableFilter = not d3.select(this).classed("label-success")
+
+            d3.selectAll(".filterTags")
+                .classed("label-primary", true)
+                .classed("label-success", false)
+
+            d3.select("##{ ftag_id }")
+                .classed("label-primary", () -> not enableFilter)
+                .classed("label-success", () -> enableFilter)
+
             d3.selectAll(".filtered")
                 .classed("filtered", false)
+
             for c in groups[g]
                 d3.select("#circ-#{c}")
-                    .classed("filtered", () -> not d3.select(this).classed("filtered"))
+                    .classed("filtered", () -> enableFilter)
 
     filtersDiv = d3.select("#filters")
     for f in filterColumns
+        ftag_id = "filter-#{f}"
         filtersDiv.append("div")
-            .text(f)
-            .on "click", filterFunc(f)
-
-
+            .attr("id", ftag_id)
+            .classed("filterTags label label-primary", true)
+            .text(fcLabels[f])
+            .on "click", filterFunc(ftag_id, f)
 
