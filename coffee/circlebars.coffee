@@ -11,7 +11,10 @@ fcLabels = {}
 fcLabels["educacao"] = "Educação"
 fcLabels["saude"] = "Saúde"
 
-eixosColor = ["#34b746", "#4b2bbf", "#ff7f00"]
+eixosColor =
+    normal: ["#34b74a", "#4b2bbf", "#ff7f00"]
+    hover: ["#34b74a", "#4b2bbf", "#ff7f00"]
+    stroke: ["#054f13", "#231459", "#8c4600"]
 
 d3.csv "/data/metas.csv", (d) ->
     x_ticks = 0
@@ -70,21 +73,22 @@ d3.csv "/data/metas.csv", (d) ->
                         .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)))
                         .attr("cx", (parseInt(o) - 1) * (2*circleRadius + circleDistance) + circleDistance + circleRadius)
                         .attr("r", circleRadius)
-                        .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
+                        .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor['normal'][m['eixo'] - 1])
                         .attr("class", "circ")
                         .attr("id", "circ-#{ m['id']}")
                         .attr("title", m['texto'])
                         .on "mouseover", () ->
                                 d3.select(this)
                                     .transition()
-                                    .attr("fill", "white")
-                                    .attr("stroke", "#444")
+                                    .attr("fill-opacity", 0.4)
+                                    .attr("stroke", "#333")
                                     .attr("stroke-width", "4")
                                 d3.select("#metaInfo").text m['texto']
                         .on "mouseout", () ->
                                 d3.select(this)
                                     .transition()
-                                    .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
+                                    .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor['normal'][m['eixo'] - 1])
+                                    .attr("fill-opacity", 1)
                                     .attr("stroke-width", "0")
                                 d3.select("#metaInfo").text ''
 

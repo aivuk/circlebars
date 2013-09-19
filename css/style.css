@@ -24,7 +24,8 @@ body {
 
 .filtered {
     stroke: #222;
-    stroke-width: 5;
+    stroke-width: 7;
+    fill-opacity: 0.7;
 }
 
 .filterTags {

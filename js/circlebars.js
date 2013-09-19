@@ -25,7 +25,11 @@
 
   fcLabels["saude"] = "Saúde";
 
-  eixosColor = ["#34b746", "#4b2bbf", "#ff7f00"];
+  eixosColor = {
+    normal: ["#34b74a", "#4b2bbf", "#ff7f00"],
+    hover: ["#34b74a", "#4b2bbf", "#ff7f00"],
+    stroke: ["#054f13", "#231459", "#8c4600"]
+  };
 
   d3.csv("/data/metas.csv", function(d) {
     var chart, chartWidth, eixosSize, f, filterFunc, filtersDiv, ftag_id, groups, i, maxHeight, ms, o, x_tick, x_ticks, _fn, _fn1, _i, _j, _len, _len1, _results;
@@ -86,19 +90,19 @@
           if (m['estado'] === "concluída") {
             return "red";
           } else {
-            return eixosColor[m['eixo'] - 1];
+            return eixosColor['normal'][m['eixo'] - 1];
           }
         }).attr("class", "circ").attr("id", "circ-" + m['id']).attr("title", m['texto']).on("mouseover", function() {
-          d3.select(this).transition().attr("fill", "white").attr("stroke", "#444").attr("stroke-width", "4");
+          d3.select(this).transition().attr("fill-opacity", 0.4).attr("stroke", "#333").attr("stroke-width", "4");
           return d3.select("#metaInfo").text(m['texto']);
         }).on("mouseout", function() {
           d3.select(this).transition().attr("fill", function(state) {
             if (m['estado'] === "concluída") {
               return "red";
             } else {
-              return eixosColor[m['eixo'] - 1];
+              return eixosColor['normal'][m['eixo'] - 1];
             }
-          }).attr("stroke-width", "0");
+          }).attr("fill-opacity", 1).attr("stroke-width", "0");
           return d3.select("#metaInfo").text('');
         });
       });
