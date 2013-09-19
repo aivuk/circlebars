@@ -1,7 +1,8 @@
-numbers = [[1, 2], [2], [4, 5, 6]]
 chartHeight = 600
 circleRadius = 20
 circleDistance = 10
+circleBorder = 4
+paddingBottom = 60
 metas = {}
 eixos = {}
 filterColumns = ["educacao", "saude"]
@@ -13,11 +14,13 @@ fcLabels["saude"] = "Saúde"
 eixosColor = ["#34b746", "#4b2bbf", "#ff7f00"]
 
 d3.csv "/data/metas.csv", (d) ->
+    x_ticks = 0
     # Group the data
     d.forEach (r) ->
         if metas[r['objetivo']]?
             metas[r['objetivo']].push r
         else
+            x_ticks += 1
             metas[r['objetivo']] = [r]
 
         if eixos[r['eixo']]?
@@ -33,29 +36,38 @@ d3.csv "/data/metas.csv", (d) ->
             eixosSize.push eixos[i].length
 
     maxHeight = Math.max (ms.length for o, ms of metas)...
-    chartHeight = maxHeight*(2*circleRadius + 1.5*circleDistance)
+    chartHeight = maxHeight*(2*circleRadius + circleDistance) + paddingBottom
+    chartWidth = x_ticks*(2*circleRadius + circleDistance)
 
     # Create the SVG
     chart = d3.select("#circlebars")
-                .style("height", parseInt(chartHeight) + "px")
                 .append("svg:svg")
-                    .attr("width", "100%")
-                    .attr("height", "100%")
+                    .attr("width", "#{chartWidth}px")
+                    .attr("height", "#{chartHeight}px")
 
     groups = {}
     for f in filterColumns
         groups[f] = []
 
+    x_tick = circleRadius + circleDistance
     for o, ms of metas
         do (ms) ->
+            chart.append("svg:text")
+                .text(o)
+                .attr("x", x_tick)
+                .attr("y", chartHeight - paddingBottom/10)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "25px")
+            x_tick += 2*circleRadius + circleDistance
+
             ms.forEach (m, i) ->
                 for f in filterColumns
                     if m[f] == "TRUE"
                         groups[f].push m['id']
-                console.log groups
                 chart.append("svg:circle")
+                        .attr("transform", "translate(0, -#{paddingBottom})")
                         .attr("class", "circ")
-                        .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)) - 2*circleRadius)
+                        .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)))
                         .attr("cx", (parseInt(o) - 1) * (2*circleRadius + circleDistance) + circleDistance + circleRadius)
                         .attr("r", circleRadius)
                         .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
@@ -75,7 +87,6 @@ d3.csv "/data/metas.csv", (d) ->
                                     .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor[m['eixo'] - 1])
                                     .attr("stroke-width", "0")
                                 d3.select("#metaInfo").text ''
-
 
     $(".circ").tipsy({gravity: 'w', opacity: 0.9})
     filterFunc = (ftag_id, g) ->
