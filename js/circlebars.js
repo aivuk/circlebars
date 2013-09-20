@@ -86,7 +86,7 @@
             groups[f].push(m['id']);
           }
         }
-        return chart.append("svg:circle").attr("transform", "translate(0, -" + paddingBottom + ")").attr("class", "circ").attr("cy", chartHeight - (i * (2 * circleRadius + circleDistance))).attr("cx", (parseInt(o) - 1) * (2 * circleRadius + circleDistance) + circleDistance + circleRadius).attr("r", circleRadius).attr("fill", function(state) {
+        return chart.append("svg:a").attr("xlink:href", m['link_blog']).append("svg:circle").attr("transform", "translate(0, -" + paddingBottom + ")").attr("class", "circ").attr("cy", chartHeight - (i * (2 * circleRadius + circleDistance))).attr("cx", (parseInt(o) - 1) * (2 * circleRadius + circleDistance) + circleDistance + circleRadius).attr("r", circleRadius).attr("fill", function(state) {
           if (m['estado'] === "concluída") {
             return "red";
           } else {
@@ -118,11 +118,9 @@
     filterFunc = function(ftag_id, g) {
       return function() {
         var c, enableFilter, _j, _len1, _ref, _results;
-        enableFilter = !d3.select(this).classed("label-success");
-        d3.selectAll(".filterTags").classed("label-primary", true).classed("label-success", false);
-        d3.select("#" + ftag_id).classed("label-primary", function() {
-          return !enableFilter;
-        }).classed("label-success", function() {
+        enableFilter = !d3.select(this).classed("label-selected");
+        d3.selectAll(".filterTags").classed("label-selected", false);
+        d3.select("#" + ftag_id).classed("label-selected", function() {
           return enableFilter;
         });
         d3.selectAll(".filtered").classed("filtered", false);
@@ -142,7 +140,7 @@
     for (_j = 0, _len1 = filterColumns.length; _j < _len1; _j++) {
       f = filterColumns[_j];
       ftag_id = "filter-" + f;
-      _results.push(filtersDiv.append("div").attr("id", ftag_id).classed("filterTags label label-primary", true).text(fcLabels[f]).on("click", filterFunc(ftag_id, f)));
+      _results.push(filtersDiv.append("div").attr("id", ftag_id).classed("filterTags label", true).text(fcLabels[f]).on("click", filterFunc(ftag_id, f)));
     }
     return _results;
   });

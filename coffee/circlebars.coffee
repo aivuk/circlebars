@@ -67,7 +67,9 @@ d3.csv "/data/metas.csv", (d) ->
                 for f in filterColumns
                     if m[f] == "TRUE"
                         groups[f].push m['id']
-                chart.append("svg:circle")
+                chart.append("svg:a")
+                     .attr("xlink:href", m['link_blog'])
+                    .append("svg:circle")
                         .attr("transform", "translate(0, -#{paddingBottom})")
                         .attr("class", "circ")
                         .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)))
@@ -95,15 +97,13 @@ d3.csv "/data/metas.csv", (d) ->
     $(".circ").tipsy({gravity: 'w', opacity: 0.9})
     filterFunc = (ftag_id, g) ->
         () ->
-            enableFilter = not d3.select(this).classed("label-success")
+            enableFilter = not d3.select(this).classed("label-selected")
 
             d3.selectAll(".filterTags")
-                .classed("label-primary", true)
-                .classed("label-success", false)
+                .classed("label-selected", false)
 
             d3.select("##{ ftag_id }")
-                .classed("label-primary", () -> not enableFilter)
-                .classed("label-success", () -> enableFilter)
+                .classed("label-selected", () -> enableFilter)
 
             d3.selectAll(".filtered")
                 .classed("filtered", false)
@@ -117,7 +117,7 @@ d3.csv "/data/metas.csv", (d) ->
         ftag_id = "filter-#{f}"
         filtersDiv.append("div")
             .attr("id", ftag_id)
-            .classed("filterTags label label-primary", true)
+            .classed("filterTags label", true)
             .text(fcLabels[f])
             .on "click", filterFunc(ftag_id, f)
 

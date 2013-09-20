@@ -31,5 +31,21 @@ body {
 .filterTags {
     margin-left: 5px;
     font-size: 16px !important;
+    background-color: #888;
+    border: 4px solid #888;
 }
 
+.filterTags:hover {
+    background-color: #444;
+    border: 4px solid #222;
+}
+
+.label-selected {
+    background-color: #07f;
+    border: 4px solid black;
+}
+
+.filterTags .label .label-selected :hover {
+    background-color: red;
+    border: 4px solid black;
+}
