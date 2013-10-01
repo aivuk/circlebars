@@ -45,7 +45,7 @@ body {
     border: 4px solid black;
 }
 
-.filterTags .label .label-selected :hover {
-    background-color: red;
+.filterTags.label.label-selected:hover {
+    background-color: #0af;
     border: 4px solid black;
 }

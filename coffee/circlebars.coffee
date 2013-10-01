@@ -3,15 +3,14 @@ circleRadius = 20
 circleDistance = 10
 circleBorder = 4
 paddingBottom = 60
-metas = {}
-eixos = {}
-filterColumns = ["educacao", "saude"]
+groups = {}
+lines = {}
+filterColumns = ["Educação", "Saúde"]
+lineCol = "objetivo"
+groupCol = "eixo"
+linkCol = "link_blog"
 
-fcLabels = {}
-fcLabels["educacao"] = "Educação"
-fcLabels["saude"] = "Saúde"
-
-eixosColor =
+groupsColor =
     normal: ["#34b74a", "#4b2bbf", "#ff7f00"]
     hover: ["#34b74a", "#4b2bbf", "#ff7f00"]
     stroke: ["#054f13", "#231459", "#8c4600"]
@@ -20,25 +19,25 @@ d3.csv "/data/metas.csv", (d) ->
     x_ticks = 0
     # Group the data
     d.forEach (r) ->
-        if metas[r['objetivo']]?
-            metas[r['objetivo']].push r
+        if lines[r[lineCol]]?
+            lines[r[lineCol]].push r
         else
             x_ticks += 1
-            metas[r['objetivo']] = [r]
+            lines[r[lineCol]] = [r]
 
-        if eixos[r['eixo']]?
-            if r['objetivo'] not in eixos[r['eixo']]
-                eixos[r['eixo']].push r['objetivo']
+        if groups[r[groupCol]]?
+            if r[lineCol] not in groups[r[groupCol]]
+                groups[r[groupCol]].push r[lineCol]
         else
-            eixos[r['eixo']] = [r['objetivo']]
+            groups[r[groupCol]] = [r[lineCol]]
 
-    # Calculate the number of elements in each axe group
-    eixosSize = []
-    for i of eixos
+    # Calculate the number of elements in each axis group
+    groupsSize = []
+    for i of groups
         do (i) ->
-            eixosSize.push eixos[i].length
+            groupsSize.push groups[i].length
 
-    maxHeight = Math.max (ms.length for o, ms of metas)...
+    maxHeight = Math.max (ms.length for o, ms of lines)...
     chartHeight = maxHeight*(2*circleRadius + circleDistance) + paddingBottom
     chartWidth = x_ticks*(2*circleRadius + circleDistance)
 
@@ -48,12 +47,12 @@ d3.csv "/data/metas.csv", (d) ->
                     .attr("width", "#{chartWidth}px")
                     .attr("height", "#{chartHeight}px")
 
-    groups = {}
+    filteredGroups = {}
     for f in filterColumns
-        groups[f] = []
+        filteredGroups[f] = []
 
     x_tick = circleRadius + circleDistance
-    for o, ms of metas
+    for o, ms of lines
         do (ms) ->
             chart.append("svg:text")
                 .text(o)
@@ -66,16 +65,16 @@ d3.csv "/data/metas.csv", (d) ->
             ms.forEach (m, i) ->
                 for f in filterColumns
                     if m[f] == "TRUE"
-                        groups[f].push m['id']
+                        filteredGroups[f].push m['id']
                 chart.append("svg:a")
-                     .attr("xlink:href", m['link_blog'])
+                     .attr("xlink:href", m[linkCol])
                     .append("svg:circle")
                         .attr("transform", "translate(0, -#{paddingBottom})")
                         .attr("class", "circ")
                         .attr("cy", chartHeight - (i * (2*circleRadius + circleDistance)))
                         .attr("cx", (parseInt(o) - 1) * (2*circleRadius + circleDistance) + circleDistance + circleRadius)
                         .attr("r", circleRadius)
-                        .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor['normal'][m['eixo'] - 1])
+                        .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else groupsColor['normal'][m[groupCol] - 1])
                         .attr("class", "circ")
                         .attr("id", "circ-#{ m['id']}")
                         .attr("title", m['texto'])
@@ -89,7 +88,7 @@ d3.csv "/data/metas.csv", (d) ->
                         .on "mouseout", () ->
                                 d3.select(this)
                                     .transition()
-                                    .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else eixosColor['normal'][m['eixo'] - 1])
+                                    .attr("fill", (state) -> if m['estado'] == "concluída" then "red" else groupsColor['normal'][m[groupCol] - 1])
                                     .attr("fill-opacity", 1)
                                     .attr("stroke-width", "0")
                                 d3.select("#metaInfo").text ''
@@ -99,8 +98,8 @@ d3.csv "/data/metas.csv", (d) ->
         () ->
             enableFilter = not d3.select(this).classed("label-selected")
 
-            d3.selectAll(".filterTags")
-                .classed("label-selected", false)
+            d3.selectAll(".label-selected")
+                 .classed("label-selected", () -> false)
 
             d3.select("##{ ftag_id }")
                 .classed("label-selected", () -> enableFilter)
@@ -108,7 +107,7 @@ d3.csv "/data/metas.csv", (d) ->
             d3.selectAll(".filtered")
                 .classed("filtered", false)
 
-            for c in groups[g]
+            for c in filteredGroups[g]
                 d3.select("#circ-#{c}")
                     .classed("filtered", () -> enableFilter)
 
@@ -118,6 +117,6 @@ d3.csv "/data/metas.csv", (d) ->
         filtersDiv.append("div")
             .attr("id", ftag_id)
             .classed("filterTags label", true)
-            .text(fcLabels[f])
+            .text(f)
             .on "click", filterFunc(ftag_id, f)
 
